@@ -133,15 +133,29 @@ app.post('/api/manga', async (req, res) => {
 app.put('/api/manga/:id', async (req, res) => {
   try {
     const db = getDatabase();
-    await db.collection('manga').updateOne(
+    console.log('PUT /api/manga/:id called');
+    console.log('ID:', req.params.id);
+    console.log('Body:', req.body);
+    // Remove _id from update payload
+    const { _id, ...updateData } = req.body;
+    const result = await db.collection('manga').updateOne(
       { id: req.params.id },
       { 
         $set: { 
-          ...req.body,
+          ...updateData,
           updatedAt: new Date()
         }
       }
     );
+    console.log('MongoDB update result:', result);
+    if (result.matchedCount === 0) {
+      console.error('No manga found with id:', req.params.id);
+      return res.status(404).json({ error: 'No manga found to update.' });
+    }
+    if (result.modifiedCount === 0) {
+      console.error('Manga found but not modified:', req.params.id);
+      return res.status(400).json({ error: 'Manga not modified.' });
+    }
     res.json({ success: true });
   } catch (error) {
     console.error('Error updating manga:', error);
