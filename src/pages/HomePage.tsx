@@ -1,4 +1,5 @@
 import React from 'react';
+import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Clock } from 'lucide-react';
 import MangaCard from '../components/MangaCard';
@@ -25,7 +26,15 @@ const HomePage: React.FC = () => {
   const latestManga = manga.slice(0, 6);
 
   return (
-    <div className="min-h-screen">
+    <>
+      <Helmet>
+        <title>Manga madness - Read Featured & Latest Manga Online</title>
+        <meta name="description" content="Discover handpicked featured manga and the latest updates. Read manga online for free on Manga madness." />
+        <meta property="og:title" content="Manga madness - Read Featured & Latest Manga Online" />
+        <meta property="og:description" content="Discover handpicked featured manga and the latest updates. Read manga online for free on Manga madness." />
+        <meta property="og:type" content="website" />
+      </Helmet>
+      <div className="min-h-screen">
       {/* Featured Manga */}
       <section className="py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -83,6 +92,7 @@ const HomePage: React.FC = () => {
         </div>
       </section>
     </div>
+    </>
   );
 };
 

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Helmet } from 'react-helmet-async';
 import { useParams, Link } from 'react-router-dom';
 import { Star, Eye, Calendar, User, Tag, BookOpen, Clock, RefreshCw } from 'lucide-react';
 import { useData } from '../contexts/DataContext';
@@ -81,7 +82,16 @@ const MangaDetailsPage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen py-8">
+    <>
+      <Helmet>
+        <title>{manga.title} - Read Online | Manga madness</title>
+        <meta name="description" content={manga.description?.slice(0, 160) || 'Read manga online on Manga madness.'} />
+        <meta property="og:title" content={`${manga.title} - Read Online | Manga madness`} />
+        <meta property="og:description" content={manga.description?.slice(0, 160) || 'Read manga online on Manga madness.'} />
+        <meta property="og:type" content="article" />
+        {manga.coverImage && <meta property="og:image" content={manga.coverImage} />}
+      </Helmet>
+      <div className="min-h-screen py-8">
       {/* Banner Section */}
       <div className="relative w-full h-64 md:h-80 lg:h-96 flex items-end justify-center overflow-hidden">
         {/* Blurred, zoomed background */}
@@ -221,6 +231,7 @@ const MangaDetailsPage: React.FC = () => {
         <CommentSection mangaId={manga.id} />
       </div>
     </div>
+    </>
   );
 };
 

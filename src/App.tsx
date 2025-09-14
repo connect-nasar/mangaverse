@@ -1,4 +1,5 @@
 import React from 'react';
+import { HelmetProvider } from 'react-helmet-async';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { DataProvider } from './contexts/DataContext';
@@ -35,13 +36,15 @@ function AppLayout() {
 
 function App() {
   return (
-    <ThemeProvider>
-      <DataProvider>
-        <Router>
-          <AppLayout />
-        </Router>
-      </DataProvider>
-    </ThemeProvider>
+    <HelmetProvider>
+      <ThemeProvider>
+        <DataProvider>
+          <Router>
+            <AppLayout />
+          </Router>
+        </DataProvider>
+      </ThemeProvider>
+    </HelmetProvider>
   );
 }
 
