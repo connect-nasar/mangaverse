@@ -13,6 +13,7 @@ const AdminPanel: React.FC = () => {
   const [isAddingManga, setIsAddingManga] = useState(false);
   const [isAddingChapter, setIsAddingChapter] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [editingMangaId, setEditingMangaId] = useState<string | null>(null);
 
   const [newManga, setNewManga] = useState<Partial<Manga>>({
     title: '',
@@ -36,6 +37,7 @@ const AdminPanel: React.FC = () => {
   });
 
   const [pageUrls, setPageUrls] = useState<string>('');
+  const [editMangaData, setEditMangaData] = useState<Partial<Manga>>({});
 
   useEffect(() => {
     if (selectedManga && mangaService) {
@@ -176,6 +178,33 @@ const AdminPanel: React.FC = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleEditManga = (mangaItem: Manga) => {
+    setEditingMangaId(mangaItem.id);
+    setEditMangaData({ ...mangaItem });
+  };
+
+  const handleSaveEditManga = async () => {
+    if (!editingMangaId || !mangaService) return;
+    try {
+      setLoading(true);
+      await mangaService.updateManga(editingMangaId, editMangaData);
+      await refreshManga();
+      setEditingMangaId(null);
+      setEditMangaData({});
+      alert('Manga updated successfully!');
+    } catch (error) {
+      console.error('Error updating manga:', error);
+      alert('Failed to update manga');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCancelEditManga = () => {
+    setEditingMangaId(null);
+    setEditMangaData({});
   };
 
   if (!isAuthenticated) {
@@ -361,17 +390,110 @@ const AdminPanel: React.FC = () => {
                     <div key={mangaItem.id} className="border border-gray-200 dark:border-gray-600 rounded-lg p-4">
                       <div className="flex items-center justify-between">
                         <div>
-                          <h3 className="font-semibold text-gray-900 dark:text-white">{mangaItem.title}</h3>
-                          <p className="text-gray-600 dark:text-gray-400">by {mangaItem.author}</p>
-                          <p className="text-sm text-gray-500 dark:text-gray-400">{mangaItem.views} views</p>
+                          {editingMangaId === mangaItem.id ? (
+                            <div className="space-y-2">
+                              <input
+                                type="text"
+                                value={editMangaData.title}
+                                onChange={e => setEditMangaData({ ...editMangaData, title: e.target.value })}
+                                className="px-2 py-1 border rounded w-full mb-1"
+                                placeholder="Title"
+                              />
+                              <input
+                                type="text"
+                                value={editMangaData.author}
+                                onChange={e => setEditMangaData({ ...editMangaData, author: e.target.value })}
+                                className="px-2 py-1 border rounded w-full mb-1"
+                                placeholder="Author"
+                              />
+                              <input
+                                type="text"
+                                value={editMangaData.genre?.join(', ')}
+                                onChange={e => setEditMangaData({ ...editMangaData, genre: e.target.value.split(',').map(g => g.trim()) })}
+                                className="px-2 py-1 border rounded w-full mb-1"
+                                placeholder="Genres (comma separated)"
+                              />
+                              <input
+                                type="number"
+                                value={editMangaData.rating}
+                                onChange={e => setEditMangaData({ ...editMangaData, rating: parseFloat(e.target.value) })}
+                                className="px-2 py-1 border rounded w-full mb-1"
+                                placeholder="Rating"
+                              />
+                              <input
+                                type="url"
+                                value={editMangaData.coverImage}
+                                onChange={e => setEditMangaData({ ...editMangaData, coverImage: e.target.value })}
+                                className="px-2 py-1 border rounded w-full mb-1"
+                                placeholder="Cover Image URL"
+                              />
+                              <input
+                                type="text"
+                                value={editMangaData.status}
+                                onChange={e => setEditMangaData({ ...editMangaData, status: e.target.value })}
+                                className="px-2 py-1 border rounded w-full mb-1"
+                                placeholder="Status"
+                              />
+                              <input
+                                type="number"
+                                value={editMangaData.year}
+                                onChange={e => setEditMangaData({ ...editMangaData, year: parseInt(e.target.value) })}
+                                className="px-2 py-1 border rounded w-full mb-1"
+                                placeholder="Year"
+                              />
+                              <input
+                                type="text"
+                                value={editMangaData.lastUpdated}
+                                onChange={e => setEditMangaData({ ...editMangaData, lastUpdated: e.target.value })}
+                                className="px-2 py-1 border rounded w-full mb-1"
+                                placeholder="Last Updated"
+                              />
+                              <textarea
+                                value={editMangaData.description}
+                                onChange={e => setEditMangaData({ ...editMangaData, description: e.target.value })}
+                                className="px-2 py-1 border rounded w-full mb-1"
+                                placeholder="Description"
+                              />
+                              <div className="flex gap-2 mt-2">
+                                <button
+                                  onClick={handleSaveEditManga}
+                                  disabled={loading}
+                                  className="bg-green-500 hover:bg-green-600 disabled:bg-gray-400 text-white px-3 py-1 rounded text-sm flex items-center"
+                                >
+                                  Save
+                                </button>
+                                <button
+                                  onClick={handleCancelEditManga}
+                                  disabled={loading}
+                                  className="bg-gray-500 hover:bg-gray-600 disabled:bg-gray-400 text-white px-3 py-1 rounded text-sm flex items-center"
+                                >
+                                  Cancel
+                                </button>
+                              </div>
+                            </div>
+                          ) : (
+                            <>
+                              <h3 className="font-semibold text-gray-900 dark:text-white">{mangaItem.title}</h3>
+                              <p className="text-gray-600 dark:text-gray-400">by {mangaItem.author}</p>
+                              <p className="text-sm text-gray-500 dark:text-gray-400">{mangaItem.views} views</p>
+                            </>
+                          )}
                         </div>
                         <div className="flex gap-2">
+                          {editingMangaId === mangaItem.id ? null : (
+                            <button
+                              onClick={() => handleEditManga(mangaItem)}
+                              disabled={loading}
+                              className="bg-blue-500 hover:bg-blue-600 disabled:bg-gray-400 text-white px-3 py-1 rounded text-sm flex items-center"
+                            >
+                              Edit
+                            </button>
+                          )}
                           <button
                             onClick={() => handleDeleteManga(mangaItem.id)}
                             disabled={loading}
                             className="bg-red-500 hover:bg-red-600 disabled:bg-gray-400 text-white px-3 py-1 rounded text-sm flex items-center"
                           >
-                            <Trash2 className="w-3 h-3 mr-1" />
                             Delete
                           </button>
                         </div>
